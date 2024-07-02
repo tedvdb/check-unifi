@@ -236,8 +236,15 @@ def check_site_stats(args):
 
     # Health state of wlan
     state = 0 if (
-        blob[0]['data'][0]['status'] == 'ok' and blob[0]['data'][3]['status'] == 'ok'
+        blob[0]['data'][0]['status'] == 'ok' and (
+            blob[0]['data'][3]['num_sw'] == 0 or
+            blob[0]['data'][3]['status'] == 'ok'
+        )
     ) else 1
+
+    # If no wired devices, num_user is not present
+    if "num_user" not in blob[0]["data"][3]:
+      blob[0]["data"][3]["num_user"] = 0
 
     # Format the output
     msg = f'WLAN - Active APs: {blob[0]["data"][0]["num_ap"]}, ' + \
