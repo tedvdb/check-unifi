@@ -234,14 +234,19 @@ def check_site_stats(args):
         # If no client connected, set stats_wifi_exp to 100%
         stats_wifi_exp = 100
 
-    # Health state of the site
-    state = 0 if blob[0]['data'][0]['status'] == 'ok' else 1
+    # Health state of wlan
+    state = 0 if (
+        blob[0]['data'][0]['status'] == 'ok' and blob[0]['data'][3]['status'] == 'ok'
+    ) else 1
 
     # Format the output
     msg = f'WLAN - Active APs: {blob[0]["data"][0]["num_ap"]}, ' + \
-          f'Disconnected APs: {blob[0]["data"][0]["num_disconnected"]},' + \
-          f' Client Devices: {blob[0]["data"][0]["num_user"]}, ' + \
-          f'WiFi Experience: {stats_wifi_exp:.2f}%'
+          f'Disconnected APs: {blob[0]["data"][0]["num_disconnected"]}, ' + \
+          f'Client Devices: {blob[0]["data"][0]["num_user"]}, ' + \
+          f'WiFi Experience: {stats_wifi_exp:.2f}% \n' + \
+          f'LAN - Active SWs: {blob[0]["data"][3]["num_sw"]}, ' + \
+          f'Disconnected SWs: {blob[0]["data"][3]["num_disconnected"]} ' + \
+          f'Client Devices: {blob[0]["data"][3]["num_user"]}'
 
     if args.perfdata:
         # Take over all stats
