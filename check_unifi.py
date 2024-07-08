@@ -242,6 +242,9 @@ def check_site_stats(args):
         )
     ) else 1
 
+    # If no wireless devices, num_user is not present
+    if "num_user" not in blob[0]["data"][0]:
+      blob[0]["data"][0]["num_user"] = 0
     # If no wired devices, num_user is not present
     if "num_user" not in blob[0]["data"][3]:
       blob[0]["data"][3]["num_user"] = 0
@@ -257,18 +260,26 @@ def check_site_stats(args):
 
     if args.perfdata:
         # Take over all stats
-        perf = blob[0]['data'][0]
+        wirelessperf = blob[0]['data'][0]
+        wiredperf = blob[0]['data'][3]
 
         # Add additional keys
-        perf.update({'wifi_experience': f'{stats_wifi_exp:.2f}%'})
+        wirelessperf.update({'wifi_experience': f'{stats_wifi_exp:.2f}%'})
 
-        # Remove some useless keys
-        for key in ('status', 'subsystem'):
-            perf.pop(key, None)
+        for perf in [wiredperf, wirelessperf]:
+            # Remove some useless keys
+            for key in ('status', 'subsystem', 'lan_ip'):
+                perf.pop(key, None)
 
-        # Append Unit of Measurement (UoM)
-        for key in ('rx_bytes-r', 'tx_bytes-r'):
-            perf.update({key: str(blob[0]['data'][0][key]) + 'B'})
+            # Append Unit of Measurement (UoM)
+            for key in ('rx_bytes-r', 'tx_bytes-r'):
+                if key in perf:
+                    perf.update({key: str(perf[key]) + 'B'})
+
+        # Append sw_ to each item
+        wiredperf = {f"sw_{key}": val for key, val in wiredperf.items()}
+        perf = wirelessperf
+        perf.update(wiredperf)
 
     return {'state': state, 'message': msg, 'perfdata': perf}
 
