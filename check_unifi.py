@@ -236,7 +236,10 @@ def check_site_stats(args):
 
     # Health state of wlan
     state = 0 if (
-        blob[0]['data'][0]['status'] == 'ok' and (
+        (
+            blob[0]['data'][0]['num_ap'] == 0 or
+            blob[0]['data'][0]['status'] == 'ok'
+        ) and (
             blob[0]['data'][3]['num_sw'] == 0 or
             blob[0]['data'][3]['status'] == 'ok'
         )
@@ -244,6 +247,7 @@ def check_site_stats(args):
 
     # If no wireless devices, num_user is not present
     if "num_user" not in blob[0]["data"][0]:
+      stats_wifi_exp = 100
       blob[0]["data"][0]["num_user"] = 0
     # If no wired devices, num_user is not present
     if "num_user" not in blob[0]["data"][3]:
